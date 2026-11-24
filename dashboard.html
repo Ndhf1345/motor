@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - CARE-MOTOR{% endblock %}
+{% block content %}
+<div class="header-row">
+    <h2>Kendaraan Saya</h2>
+    <a class="btn" href="{{ url_for('add_vehicle') }}">+ Tambah Kendaraan</a>
+</div>
+
+{% if not vehicles %}
+<div class="card">
+    <p>Belum ada kendaraan. Tambahkan kendaraan pertama Anda.</p>
+</div>
+{% endif %}
+
+{% for v in vehicles %}
+{% set vid = v[0] %}
+<div class="card vehicle-card">
+    <div class="vehicle-head">
+        <div>
+            <h3><a href="{{ url_for('vehicle_detail', vid=vid) }}">{{ v[2] }} {{ v[3] }}</a></h3>
+            <div class="muted">{{ v[1] }} &middot; KM saat ini: {{ "{:,}".format(v[4]).replace(",", ".") }}</div>
+        </div>
+        <a class="btn-small" href="{{ url_for('vehicle_detail', vid=vid) }}">Kelola</a>
+    </div>
+
+    {% set st = notif.get(vid, []) %}
+    {% if st %}
+        {% for sisa, jenis, target, teks in st %}
+            {% if sisa < 0 %}
+                <div class="notif notif-danger"><strong>[{{ jenis }}]</strong> {{ teks | replace('\n', ' &mdash; ') | safe }}</div>
+            {% elif sisa < 500 %}
+                <div class="notif notif-warning"><strong>[{{ jenis }}]</strong> {{ teks | replace('\n', ' &mdash; ') | safe }}</div>
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        <div class="muted">Belum ada riwayat servis.</div>
+    {% endif %}
+</div>
+{% endfor %}
+{% endblock %}

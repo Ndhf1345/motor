@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}{{ v[2] }} {{ v[3] }} - CARE-MOTOR{% endblock %}
+{% block content %}
+
+<p class="muted"><a href="{{ url_for('dashboard') }}">&larr; Kembali ke Dashboard</a></p>
+
+<div class="card">
+    <h2>{{ v[2] }} {{ v[3] }} ({{ v[1] }})</h2>
+    <p>Tahun: {{ v[4] }} &middot; KM Saat Ini: <strong>{{ fmt(v[5]) }}</strong></p>
+</div>
+
+<div class="grid">
+    <!-- Update KM -->
+    <div class="card">
+        <h3>Update Kilometer</h3>
+        <form method="post" action="{{ url_for('update_km', vid=v[0]) }}">
+            <label>Kilometer Baru</label>
+            <input type="number" name="km_baru" min="0" required>
+            <button type="submit">Simpan</button>
+        </form>
+    </div>
+
+    <!-- Tambah Servis -->
+    <div class="card">
+        <h3>Tambah Riwayat Servis</h3>
+        <form method="post" action="{{ url_for('add_service', vid=v[0]) }}">
+            <label>Jenis Servis</label>
+            <select name="jenis" required>
+                {% for j, interval in jenis_list.items() %}
+                <option value="{{ j }}">{{ j }} (tiap {{ fmt(interval) }} Km)</option>
+                {% endfor %}
+            </select>
+
+            <label>Tanggal Servis</label>
+            <input type="date" name="tanggal" required>
+
+            <label>KM Saat Servis</label>
+            <input type="number" name="km" min="0" required>
+
+            <label>Biaya</label>
+            <input type="number" name="biaya" min="0" required>
+
+            <label>Catatan</label>
+            <input type="text" name="catatan">
+
+            <button type="submit">Simpan Servis</button>
+        </form>
+    </div>
+</div>
+
+<!-- Jadwal & Notifikasi -->
+<div class="card">
+    <h3>Jadwal Servis Berikutnya &amp; Notifikasi</h3>
+    {% if status %}
+    <table>
+        <tr><th>Jenis Servis</th><th>Target (Km)</th><th>Status</th></tr>
+        {% for sisa, jenis, target, teks in status %}
+        <tr class="{% if sisa < 0 %}row-danger{% elif sisa < 500 %}row-warning{% else %}row-ok{% endif %}">
+            <td>{{ jenis }}</td>
+            <td>{{ fmt(target) }}</td>
+            <td>{{ teks | replace('\n', ' &mdash; ') | safe }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p class="muted">Belum ada riwayat servis.</p>
+    {% endif %}
+</div>
+
+<!-- Riwayat -->
+<div class="card">
+    <h3>Riwayat Servis</h3>
+    {% if history %}
+    <table>
+        <tr><th>Tanggal</th><th>Servis</th><th>KM</th><th>Biaya</th></tr>
+        {% for tgl, jenis, km, biaya in history %}
+        <tr><td>{{ tgl }}</td><td>{{ jenis }}</td><td>{{ fmt(km) }}</td><td>Rp{{ fmt(biaya) }}</td></tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p class="muted">Belum ada riwayat servis.</p>
+    {% endif %}
+</div>
+
+<!-- Laporan -->
+<div class="card">
+    <h3>Laporan &amp; Ringkasan Biaya</h3>
+    <pre class="report">{{ laporan_text }}</pre>
+    <p>Total Servis: <strong>{{ n }}</strong> &middot;
+       Biaya Rata-rata: <strong>Rp{{ fmt(rata) }}</strong>
+       {% if top %} &middot; Servis Terbanyak: <strong>{{ top[0] }} ({{ top[1] }} kali)</strong>{% endif %}
+    </p>
+</div>
+
+{% endblock %}

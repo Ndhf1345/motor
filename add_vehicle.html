@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Tambah Kendaraan - CARE-MOTOR{% endblock %}
+{% block content %}
+<div class="card narrow">
+    <h2>Tambah Kendaraan</h2>
+    <form method="post">
+        <label>Nomor Polisi</label>
+        <input type="text" name="nopol" required autofocus>
+
+        <label>Merk Motor</label>
+        <input type="text" name="merk" required>
+
+        <label>Tipe Motor</label>
+        <input type="text" name="tipe" required>
+
+        <label>Tahun Kendaraan</label>
+        <input type="number" name="tahun" min="1900" max="2100" required>
+
+        <label>Kilometer Saat Ini</label>
+        <input type="number" name="km" min="0" required>
+
+        <button type="submit">Simpan</button>
+    </form>
+    <p class="muted"><a href="{{ url_for('dashboard') }}">&larr; Kembali ke Dashboard</a></p>
+</div>
+{% endblock %}
